@@ -19,12 +19,15 @@ app.listen(port, async () => {
         console.log(`Server running at http://localhost:${port}`);
 
         // Test the Prisma database connection
-        const testUser = await prisma.user.findFirst();
-        if (testUser) {
-            console.log('Database connection successful:', testUser);
-        } else {
-            console.log('Database connection successful, but no users found.');
+        try {
+            const testUser = await prisma.user.findFirst();
+            console.log('Connected to the database successfully');
         }
+        catch (error) {
+            console.error('Error connecting to the database:', error);
+            process.exit(1); // Exit the process with failure
+        }
+
     } catch (error) {
         console.error('Error connecting to the database:', error);
         process.exit(1); // Exit the process with failure
