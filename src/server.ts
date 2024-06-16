@@ -15,7 +15,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, async () => {
-    try {
         console.log(`Server running at http://localhost:${port}`);
 
         // Test the Prisma database connection
@@ -25,13 +24,7 @@ app.listen(port, async () => {
         }
         catch (error) {
             console.error('Error connecting to the database:', error);
-            process.exit(1); // Exit the process with failure
+            prisma.$disconnect(); // Disconnect Prisma Client
         }
 
-    } catch (error) {
-        console.error('Error connecting to the database:', error);
-        process.exit(1); // Exit the process with failure
-    } finally {
-        await prisma.$disconnect();
-    }
 });

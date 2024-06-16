@@ -13,11 +13,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model UserAuth{
+  id String @id @default(cuid())
+  email String @unique
+  username String @unique
+  password String
+  user User?
+}
+
+enum Role{
+  ADMIN
+  PUBLIC
+  MEDIC
+  PATIENT
+}
+
+model User{
+  id String @id @default(cuid())
+  firstName String
+  lastName String
+  address String
+  phone String
+  role Role
+  authId String @unique
+  auth UserAuth @relation(fields: [authId], references: [id])
+  public Public?
+  patient Patient?
+  medic Medic?
+  admin Admin?
+}
+
+model Public {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Patient {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  medicId String
+  medic Medic @relation(fields: [medicId], references: [id])
+}
+
+model Medic {
+  id String @id @default(cuid())
+  specialty String
+  licenseNumber String
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  patients Patient[]
+}
+
+model Admin {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
 }
