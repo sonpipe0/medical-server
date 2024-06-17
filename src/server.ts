@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import registerRouter from "./routes/registerRouter";
 
 const app = express();
 const port = 3000;
@@ -26,5 +27,9 @@ app.listen(port, async () => {
             console.error('Error connecting to the database:', error);
             prisma.$disconnect(); // Disconnect Prisma Client
         }
+
+// auth routes
+
+app.use('/auth', registerRouter);
 
 });
