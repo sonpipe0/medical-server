@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec ts-node --transpile-only src/server.ts",
-    "lint": "npx @biomejs/biome format --write src/**/*.ts"
+    "lint": "npx @biomejs/biome lint --write src/**/*.ts"
   },
   "husky": {
     "hooks": {

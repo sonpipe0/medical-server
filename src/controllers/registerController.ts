@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { authType, userType } from "../types/authTypes";
+import type { Request, Response } from "express";
+import type { authType, userType } from "../types/authTypes";
 import bcrypt from "bcrypt";
 import { registerAuth, registerUser } from "../services/registerService";
 import prisma from "../prisma";
@@ -31,7 +31,7 @@ const registerAuthController = async (
 const registerUserController = async (
 	user: userType,
 ): Promise<{ msg: string; status: number; userId?: string }> => {
-	let { firstName, lastName, address, phone, role, authId }: userType = user;
+	const { firstName, lastName, address, phone, role, authId }: userType = user;
 
 	if (!firstName || !lastName || !address || !phone || !role || !authId) {
 		return { status: 400, msg: "Please fill in all fields" };
@@ -55,7 +55,7 @@ const registerUserController = async (
 export async function registerAdminController(req: Request, res: Response) {
 	const { auth: authType, user: userType } = req.body;
 	//manual transaction
-	let {
+	const {
 		status: authStatus,
 		msg: authMsg,
 		authId,
@@ -67,7 +67,7 @@ export async function registerAdminController(req: Request, res: Response) {
 	if (authStatus !== 201) {
 		return res.status(authStatus).json({ authMsg });
 	}
-	let {
+	const {
 		status: userStatus,
 		msg: userMsg,
 		userId,

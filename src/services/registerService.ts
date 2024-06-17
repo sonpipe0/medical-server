@@ -1,12 +1,12 @@
 import prisma from "../prisma/index";
-import { authType } from "../types/authTypes";
-import { userType } from "../types/authTypes";
+import type { authType } from "../types/authTypes";
+import type { userType } from "../types/authTypes";
 
 export async function registerAuth(
 	auth: authType,
 ): Promise<{ msg: string; status: number; authId?: string }> {
 	const { email, username, password } = auth;
-	let checkMail = await prisma.userAuth.findUnique({
+	const checkMail = await prisma.userAuth.findUnique({
 		where: {
 			email,
 		},
@@ -14,7 +14,7 @@ export async function registerAuth(
 	if (checkMail) {
 		return { status: 400, msg: "mail/already-exists" };
 	}
-	let checkUsername = await prisma.userAuth.findUnique({
+	const checkUsername = await prisma.userAuth.findUnique({
 		where: {
 			username,
 		},
