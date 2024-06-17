@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import type { authType, userType } from "../types/authTypes";
 import bcrypt from "bcrypt";
-import { registerAuth, registerUser } from "../services/registerService";
+import {registerAsAdmin, registerAuth, registerUser} from "../services/registerService";
 import prisma from "../prisma";
 
 const registerAuthController = async (
@@ -53,8 +53,12 @@ const registerUserController = async (
 };
 
 export async function registerAdminController(req: Request, res: Response) {
-	const { auth: authType, user: userType } = req.body;
+	const { auth: authType, user: userType, secret } = req.body;
 	//manual transaction
+	if (secret !== process.env.SECRET) {
+		return res.status(400).json({ msg: "secret/invalid" });
+	}
+	if(userType.role !== "ADMIN") { return res.status(400).json({ msg: "role/invalid" }); }
 	const {
 		status: authStatus,
 		msg: authMsg,
@@ -76,11 +80,15 @@ export async function registerAdminController(req: Request, res: Response) {
 		msg: string;
 		userId?: string;
 	} = await registerUserController({ ...userType, authId });
-	if (userStatus !== 201) {
+	if (userStatus !== 201 || !userId) {
 		await prisma.userAuth.delete({ where: { id: authId } });
 		return res.status(userStatus).json({ userMsg });
 	}
-	return res
-		.status(201)
-		.json({ msg: "admin/created", authId: authId, userId: userId });
+	const { status, msg,adminId } = await registerAsAdmin(userId, secret);
+	if (status !== 201) {
+		await prisma.userAuth.delete({ where: { id: authId } });
+		await prisma.user.delete({ where: { id: userId } });
+		return res.status(status).json({ msg });
+	}
+	return res.status(201).json({ msg, adminId });
 }

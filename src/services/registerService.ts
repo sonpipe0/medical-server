@@ -1,5 +1,5 @@
 import prisma from "../prisma/index";
-import type { authType } from "../types/authTypes";
+import {type authType, RoleType} from "../types/authTypes";
 import type { userType } from "../types/authTypes";
 
 export async function registerAuth(
@@ -59,4 +59,27 @@ export async function registerUser(
 	} catch (error) {
 		return { status: 400, msg: "error-unknown/create-user" };
 	}
+}
+
+export async function registerAsAdmin(userId: string, secret: string): Promise<({status: number; msg:string; adminId?:string})> {
+	const checkUser = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
+	if (!checkUser) {
+		return { status: 400, msg: "user/not-found" };
+	}
+	if (checkUser.role !== RoleType.ADMIN) {
+		return { status: 400, msg: "user/not-admin" };
+	}
+	if (secret !== process.env.ADMIN_SECRET) {
+		return { status: 400, msg: "secret/invalid" };
+	}
+	const createAdmin = await prisma.admin.create({
+		data: {
+			userId,
+		},
+	});
+	return { status: 201, msg: "admin/created", adminId: createAdmin.id };
 }
